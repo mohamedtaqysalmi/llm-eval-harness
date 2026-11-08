@@ -1,0 +1,201 @@
+name: json_extraction
+description: Extract structured fields from short unstructured blurbs into JSON.
+version: "1"
+default_scoring: json_schema
+cases:
+  - id: json-person-alice
+    prompt: |
+      Extract JSON with keys name (string), age (integer).
+      Text: name: Alice age: 30
+      [MOCK_JSON: {"name": "Alice", "age": 30}]
+    expected:
+      type: object
+      required: [name, age]
+      properties:
+        name: { type: string }
+        age: { type: integer }
+      additionalProperties: true
+  - id: json-person-bob
+    prompt: |
+      Extract JSON with keys name (string), age (integer).
+      Text: name: Bob age: 42
+      [MOCK_JSON: {"name": "Bob", "age": 42}]
+    expected:
+      type: object
+      required: [name, age]
+      properties:
+        name: { type: string }
+        age: { type: integer }
+  - id: json-person-carol
+    prompt: |
+      Extract JSON with keys name, age.
+      Text: name: Carol age: 27
+      [MOCK_JSON: {"name": "Carol", "age": 27}]
+    expected:
+      type: object
+      required: [name, age]
+      properties:
+        name: { type: string }
+        age: { type: integer }
+  - id: json-email-dana
+    prompt: |
+      Extract JSON with keys name, email.
+      Text: name: Dana email contact dana@example.com
+      [MOCK_JSON: {"name": "Dana", "email": "dana@example.com"}]
+    expected:
+      type: object
+      required: [name, email]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+  - id: json-city-eva
+    prompt: |
+      Extract JSON with keys name, city.
+      Text: name: Eva city: Casablanca
+      [MOCK_JSON: {"name": "Eva", "city": "Casablanca"}]
+    expected:
+      type: object
+      required: [name, city]
+      properties:
+        name: { type: string }
+        city: { type: string }
+  - id: json-city-farid
+    prompt: |
+      Extract JSON with keys name, city.
+      Text: name: Farid city: Rabat
+      [MOCK_JSON: {"name": "Farid", "city": "Rabat"}]
+    expected:
+      type: object
+      required: [name, city]
+      properties:
+        name: { type: string }
+        city: { type: string }
+  - id: json-full-profile
+    prompt: |
+      Extract JSON with name, age, email, city.
+      Text: name: Grace age: 35 email: grace@mail.test city: Paris
+      [MOCK_JSON: {"name": "Grace", "age": 35, "email": "grace@mail.test", "city": "Paris"}]
+    expected:
+      type: object
+      required: [name, age, email, city]
+      properties:
+        name: { type: string }
+        age: { type: integer, minimum: 0 }
+        email: { type: string }
+        city: { type: string }
+  - id: json-order-simple
+    prompt: |
+      Extract JSON with order_id (string) and total (number).
+      [MOCK_JSON: {"order_id": "A-100", "total": 19.5}]
+    expected:
+      type: object
+      required: [order_id, total]
+      properties:
+        order_id: { type: string }
+        total: { type: number }
+  - id: json-order-items
+    prompt: |
+      Extract JSON with order_id and item_count (integer).
+      [MOCK_JSON: {"order_id": "B-200", "item_count": 3}]
+    expected:
+      type: object
+      required: [order_id, item_count]
+      properties:
+        order_id: { type: string }
+        item_count: { type: integer }
+  - id: json-geo-point
+    prompt: |
+      Extract JSON with lat and lon as numbers.
+      [MOCK_JSON: {"lat": 33.57, "lon": -7.59}]
+    expected:
+      type: object
+      required: [lat, lon]
+      properties:
+        lat: { type: number }
+        lon: { type: number }
+  - id: json-tags-array
+    prompt: |
+      Extract JSON with tags as an array of strings.
+      [MOCK_JSON: {"tags": ["nlp", "eval", "llm"]}]
+    expected:
+      type: object
+      required: [tags]
+      properties:
+        tags:
+          type: array
+          items: { type: string }
+          minItems: 1
+  - id: json-nested-address
+    prompt: |
+      Extract JSON with address.city and address.country.
+      [MOCK_JSON: {"address": {"city": "Tangier", "country": "MA"}}]
+    expected:
+      type: object
+      required: [address]
+      properties:
+        address:
+          type: object
+          required: [city, country]
+          properties:
+            city: { type: string }
+            country: { type: string }
+  - id: json-bool-flag
+    prompt: |
+      Extract JSON with active as boolean true.
+      [MOCK_JSON: {"active": true}]
+    expected:
+      type: object
+      required: [active]
+      properties:
+        active: { type: boolean }
+  - id: json-score-range
+    prompt: |
+      Extract JSON with score between 0 and 1.
+      [MOCK_JSON: {"score": 0.91}]
+    expected:
+      type: object
+      required: [score]
+      properties:
+        score: { type: number, minimum: 0, maximum: 1 }
+  - id: json-contains-brace
+    prompt: |
+      Extract JSON with keys name, age.
+      Text: name: Hassan age: 40
+      [MOCK_JSON: {"name": "Hassan", "age": 40}]
+    expected: "{"
+    scoring: contains
+    scoring_params:
+      values: ["{", "}", "Hassan"]
+  - id: json-exact-marker
+    prompt: '[MOCK_JSON: {"ok": true}]'
+    expected: '{"ok": true}'
+    scoring: exact
+    scoring_params:
+      ignore_case: false
+  - id: json-regex-object
+    prompt: '[MOCK_JSON: {"n": 1}]'
+    expected: ""
+    scoring: regex
+    scoring_params:
+      pattern: "^\\s*\\{.*\\}\\s*$"
+  - id: json-not-contains-markdown
+    prompt: |
+      Extract JSON only, no markdown fences.
+      [MOCK_JSON: {"clean": true}]
+    expected:
+      type: object
+      required: [clean]
+      properties:
+        clean: { type: boolean }
+  - id: json-similarity-keys
+    prompt: '[MOCK_JSON: {"alpha": 1, "beta": 2}]'
+    expected: '{"alpha": 1, "beta": 2}'
+    scoring: similarity
+    scoring_params:
+      threshold: 0.9
+  - id: json-judge-valid-shape
+    prompt: '[MOCK_JSON: {"status": "ok"}]'
+    expected: '{"status": "ok"}'
+    scoring: llm_judge
+    scoring_params:
+      rubric: "Pass if JSON has status ok."

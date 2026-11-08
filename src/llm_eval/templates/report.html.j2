@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>llm-eval report — {{ run.run_id }}</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --ink: #1c1a16;
+      --muted: #5c574e;
+      --line: #d9d2c5;
+      --pass: #1f6f4a;
+      --fail: #9b2c2c;
+      --card: #fffdf8;
+      --accent: #0f4c5c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #e7efe8 0%, transparent 55%),
+        radial-gradient(900px 400px at 100% 0%, #e8e2d4 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.45;
+    }
+    header {
+      padding: 2rem 1.5rem 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 { margin: 0 0 .35rem; font-size: 1.75rem; letter-spacing: -0.02em; }
+    .meta { color: var(--muted); font-size: .95rem; }
+    main { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+    section { margin-top: 1.75rem; }
+    h2 { font-size: 1.15rem; margin: 0 0 .75rem; color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border: 1px solid var(--line);
+    }
+    th, td {
+      padding: .55rem .65rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: .92rem;
+    }
+    th {
+      cursor: pointer;
+      user-select: none;
+      background: #f0ebe2;
+      position: sticky;
+      top: 0;
+    }
+    th:hover { background: #e7e0d4; }
+    tr:hover td { background: #faf7f1; }
+    .pass { color: var(--pass); font-weight: 600; }
+    .fail { color: var(--fail); font-weight: 600; }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .chart {
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 1rem;
+    }
+    .bar-row { display: flex; align-items: center; gap: .5rem; margin: .4rem 0; }
+    .bar-label { width: 7rem; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { flex: 1; background: #ebe4d7; height: .7rem; border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--accent); }
+    .bar-val { width: 4.5rem; text-align: right; font-size: .85rem; color: var(--muted); }
+    details {
+      background: var(--card);
+      border: 1px solid var(--line);
+      margin-bottom: .5rem;
+      padding: .55rem .75rem;
+    }
+    summary { cursor: pointer; font-weight: 600; }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #f3eee5;
+      padding: .65rem;
+      font-size: .85rem;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+    input, select {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: .4rem .55rem;
+      font: inherit;
+    }
+    footer { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 2rem; color: var(--muted); font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>llm-eval report</h1>
+    <div class="meta">
+      Run <strong>{{ run.run_id }}</strong> · {{ run.created_at }} ·
+      models: {{ run.models | join(", ") }} ·
+      suites: {{ run.suites | join(", ") }}
+    </div>
+  </header>
+  <main>
+    <section>
+      <h2>Summary</h2>
+      <table id="summary-table">
+        <thead>
+          <tr>
+            <th data-col="0">Model</th>
+            <th data-col="1" data-type="num">Accuracy</th>
+            <th data-col="2" data-type="num">Passed</th>
+            <th data-col="3" data-type="num">Failed</th>
+            <th data-col="4" data-type="num">Errors</th>
+            <th data-col="5" data-type="num">Mean score</th>
+            <th data-col="6" data-type="num">Mean latency (ms)</th>
+            <th data-col="7" data-type="num">Tokens</th>
+            <th data-col="8" data-type="num">Cost (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in run.summaries %}
+          <tr>
+            <td>{{ s.model }}</td>
+            <td>{{ '%.1f'|format(s.accuracy * 100) }}%</td>
+            <td>{{ s.passed }}</td>
+            <td>{{ s.failed }}</td>
+            <td>{{ s.errors }}</td>
+            <td>{{ '%.3f'|format(s.mean_score) }}</td>
+            <td>{{ '%.1f'|format(s.mean_latency_ms) }}</td>
+            <td>{{ s.total_tokens }}</td>
+            <td>{{ '%.6f'|format(s.total_cost_usd) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Charts</h2>
+      <div class="charts">
+        <div class="chart">
+          <strong>Accuracy</strong>
+          {% for s in run.summaries %}
+          <div class="bar-row">
+            <div class="bar-label" title="{{ s.model }}">{{ s.model }}</div>
+            <div class="bar-track"><div class="bar-fill" style="width: {{ (s.accuracy * 100)|round(1) }}%"></div></div>
+            <div class="bar-val">{{ '%.1f'|format(s.accuracy * 100) }}%</div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="chart">
+          <strong>Mean latency (ms)</strong>
+          {% set max_lat = (run.summaries | map(attribute='mean_latency_ms') | max) or 1 %}
+          {% for s in run.summaries %}
+          <div class="bar-row">
+            <div class="bar-label" title="{{ s.model }}">{{ s.model }}</div>
+            <div class="bar-track"><div class="bar-fill" style="width: {{ ((s.mean_latency_ms / max_lat) * 100)|round(1) }}%"></div></div>
+            <div class="bar-val">{{ '%.1f'|format(s.mean_latency_ms) }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="chart">
+          <strong>Estimated cost (USD)</strong>
+          {% set max_cost = (run.summaries | map(attribute='total_cost_usd') | max) or 0 %}
+          {% for s in run.summaries %}
+          <div class="bar-row">
+            <div class="bar-label" title="{{ s.model }}">{{ s.model }}</div>
+            <div class="bar-track"><div class="bar-fill" style="width: {% if max_cost > 0 %}{{ ((s.total_cost_usd / max_cost) * 100)|round(1) }}{% else %}0{% endif %}%"></div></div>
+            <div class="bar-val">{{ '%.6f'|format(s.total_cost_usd) }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cases</h2>
+      <div class="filters">
+        <input id="filter-text" type="search" placeholder="Filter cases…" />
+        <select id="filter-model">
+          <option value="">All models</option>
+          {% for m in run.models %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+        </select>
+        <select id="filter-pass">
+          <option value="">Pass + fail</option>
+          <option value="pass">Passed only</option>
+          <option value="fail">Failed only</option>
+        </select>
+      </div>
+      <table id="cases-table">
+        <thead>
+          <tr>
+            <th data-col="0">Suite</th>
+            <th data-col="1">Case</th>
+            <th data-col="2">Model</th>
+            <th data-col="3">Result</th>
+            <th data-col="4" data-type="num">Score</th>
+            <th data-col="5" data-type="num">Latency</th>
+            <th data-col="6">Scoring</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in run.cases %}
+          <tr data-model="{{ c.model }}" data-pass="{{ 'pass' if c.passed else 'fail' }}" data-text="{{ (c.suite ~ ' ' ~ c.case_id ~ ' ' ~ c.output ~ ' ' ~ (c.error or '')) | e }}">
+            <td>{{ c.suite }}</td>
+            <td>
+              <details>
+                <summary>{{ c.case_id }}</summary>
+                <p><strong>Prompt</strong></p>
+                <pre>{{ c.prompt }}</pre>
+                <p><strong>Expected</strong></p>
+                <pre>{{ c.expected }}</pre>
+                <p><strong>Output</strong></p>
+                <pre>{{ c.output }}</pre>
+                {% if c.error %}<p class="fail">Error: {{ c.error }}</p>{% endif %}
+                <p class="meta">{{ c.scoring_detail }} · tokens={{ c.total_tokens }} · cost=${{ '%.6f'|format(c.cost_usd) }}</p>
+              </details>
+            </td>
+            <td>{{ c.model }}</td>
+            <td class="{{ 'pass' if c.passed else 'fail' }}">{{ 'PASS' if c.passed else 'FAIL' }}</td>
+            <td>{{ '%.3f'|format(c.score) }}</td>
+            <td>{{ '%.1f'|format(c.latency_ms) }}</td>
+            <td>{{ c.scoring }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer>
+    Generated by llm-eval-harness · self-contained HTML · sortable columns · offline-friendly
+  </footer>
+  <script>
+    function sortTable(table, col, numeric) {
+      const tbody = table.tBodies[0];
+      const rows = Array.from(tbody.rows);
+      const asc = table.dataset.sortCol == col && table.dataset.sortDir == "asc" ? false : true;
+      rows.sort((a, b) => {
+        let av = a.cells[col].innerText.trim();
+        let bv = b.cells[col].innerText.trim();
+        if (numeric) {
+          av = parseFloat(av.replace(/[^0-9.\-]+/g, "")) || 0;
+          bv = parseFloat(bv.replace(/[^0-9.\-]+/g, "")) || 0;
+          return asc ? av - bv : bv - av;
+        }
+        return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+      rows.forEach(r => tbody.appendChild(r));
+      table.dataset.sortCol = col;
+      table.dataset.sortDir = asc ? "asc" : "desc";
+    }
+    document.querySelectorAll("table").forEach(table => {
+      table.querySelectorAll("th[data-col]").forEach(th => {
+        th.addEventListener("click", () => {
+          sortTable(table, Number(th.dataset.col), th.dataset.type === "num");
+        });
+      });
+    });
+    const filterText = document.getElementById("filter-text");
+    const filterModel = document.getElementById("filter-model");
+    const filterPass = document.getElementById("filter-pass");
+    function applyFilters() {
+      const q = (filterText.value || "").toLowerCase();
+      const model = filterModel.value;
+      const pass = filterPass.value;
+      document.querySelectorAll("#cases-table tbody tr").forEach(row => {
+        const okText = !q || (row.dataset.text || "").toLowerCase().includes(q);
+        const okModel = !model || row.dataset.model === model;
+        const okPass = !pass || row.dataset.pass === pass;
+        row.style.display = okText && okModel && okPass ? "" : "none";
+      });
+    }
+    [filterText, filterModel, filterPass].forEach(el => el.addEventListener("input", applyFilters));
+  </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+name: translation_sanity
+description: Lightweight Darija / French / English translation sanity checks (not a full MT benchmark).
+version: "1"
+default_scoring: exact
+cases:
+  - id: tr-en-fr-hello
+    prompt: "Translate to French. Reply with only the translation. Text: Hello"
+    expected: "Bonjour"
+  - id: tr-en-fr-thanks
+    prompt: "Translate to French. Reply with only the translation. Text: Thank you"
+    expected: "Merci"
+  - id: tr-en-fr-morning
+    prompt: "Translate to French. Reply with only the translation. Text: Good morning"
+    expected: "Bonjour"
+  - id: tr-fr-en-bonjour
+    prompt: "Translate to English. Reply with only the translation. Text: Bonjour"
+    expected: "Hello"
+  - id: tr-fr-en-merci
+    prompt: "Translate to English. Reply with only the translation. Text: Merci"
+    expected: "Thank you"
+  - id: tr-en-darija-hello
+    prompt: "Translate to Darija. Reply with only the translation. Text: Hello"
+    expected: "Salam"
+  - id: tr-en-darija-thanks
+    prompt: "Translate to Darija. Reply with only the translation. Text: Thank you"
+    expected: "Choukran"
+  - id: tr-fr-darija-bonjour
+    prompt: "Traduis en Darija. Reply with only the translation. Text: Bonjour"
+    expected: "Salam"
+  - id: tr-fr-darija-merci
+    prompt: "Traduis en Darija. Reply with only the translation. Text: Merci"
+    expected: "Choukran"
+  - id: tr-darija-en-salam
+    prompt: "Translate to English. Reply with only the translation. Text: Salam"
+    expected: "Hello"
+  - id: tr-darija-en-salam-3likoum
+    prompt: "Translate to English. Reply with only the translation. Text: Salam 3likoum"
+    expected: "Hello"
+  - id: tr-mock-labas
+    prompt: "Translate to English. [MOCK_ANSWER: How are you] Text: Labas?"
+    expected: "How are you"
+  - id: tr-mock-bslama
+    prompt: "Translate to English. [MOCK_ANSWER: Goodbye] Text: Bslama"
+    expected: "Goodbye"
+  - id: tr-mock-wakha
+    prompt: "Translate to English. [MOCK_ANSWER: Okay] Text: Wakha"
+    expected: "Okay"
+  - id: tr-mock-safi
+    prompt: "Translate to French. [MOCK_ANSWER: Ça y est] Text: Safi"
+    expected: "Ça y est"
+  - id: tr-contains-bonjour
+    prompt: "Translate to French. Reply with only the translation. Text: Hello"
+    expected: "Bonjour"
+    scoring: contains
+    scoring_params:
+      values: ["Bonjour"]
+  - id: tr-not-contains-english-leak
+    prompt: "Translate to French. Reply with only the translation. Text: Thank you"
+    expected: "Merci"
+    scoring: not_contains
+    scoring_params:
+      values: ["Thank you", "Thanks"]
+  - id: tr-similarity-merci
+    prompt: "Translate to French. Reply with only the translation. Text: Thank you"
+    expected: "Merci"
+    scoring: similarity
+    scoring_params:
+      threshold: 0.8
+  - id: tr-regex-salam
+    prompt: "Translate to Darija. Reply with only the translation. Text: Hello"
+    expected: "Salam"
+    scoring: regex
+    scoring_params:
+      pattern: "(?i)^\\s*salam\\s*$"
+  - id: tr-judge-hello
+    prompt: "Translate to English. Reply with only the translation. Text: Bonjour"
+    expected: "Hello"
+    scoring: llm_judge
+    scoring_params:
+      rubric: "Pass if translation means Hello/Hi."
+  - id: tr-mock-shukran-fr
+    prompt: "Translate to French. [MOCK_ANSWER: Merci] Text: Choukran"
+    expected: "Merci"
+  - id: tr-mock-yes-darija
+    prompt: "Translate to Darija. [MOCK_ANSWER: Iyeh] Text: Yes"
+    expected: "Iyeh"
+  - id: tr-mock-no-darija
+    prompt: "Translate to Darija. [MOCK_ANSWER: La] Text: No"
+    expected: "La"
+  - id: tr-mock-please-fr
+    prompt: "Translate to French. [MOCK_ANSWER: S'il vous plaît] Text: Please"
+    expected: "S'il vous plaît"
+  - id: tr-mock-water-darija
+    prompt: "Translate to Darija. [MOCK_ANSWER: Lma] Text: Water"
+    expected: "Lma"
