@@ -75,9 +75,7 @@ def compare_runs(baseline: RunResult, candidate: RunResult) -> CompareReport:
     base_acc = {s.model: s.accuracy for s in baseline.summaries}
     cand_acc = {s.model: s.accuracy for s in candidate.summaries}
     models = sorted(set(base_acc) | set(cand_acc))
-    accuracy_delta = {
-        m: cand_acc.get(m, 0.0) - base_acc.get(m, 0.0) for m in models
-    }
+    accuracy_delta = {m: cand_acc.get(m, 0.0) - base_acc.get(m, 0.0) for m in models}
     return CompareReport(
         baseline_id=baseline.run_id,
         candidate_id=candidate.run_id,

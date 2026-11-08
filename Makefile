@@ -24,7 +24,7 @@ build:
 	python -m build
 
 run-mock:
-	llm-eval run suites/ --models mock --out reports/mock-run
+	llm-eval run suites/ --models mock --out reports/mock-run --judge-model mock
 
 docker-build:
 	docker build -t llm-eval-harness:local .

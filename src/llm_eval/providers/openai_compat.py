@@ -26,9 +26,9 @@ class OpenAICompatProvider:
         self.model = model
         self.name = model
         self.api_key = api_key if api_key is not None else os.getenv("OPENAI_API_KEY", "")
-        self.base_url = (base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1").rstrip(
-            "/"
-        )
+        self.base_url = (
+            base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+        ).rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_backoff = retry_backoff
@@ -106,7 +106,9 @@ class OpenAICompatProvider:
                 )
 
         latency = (time.perf_counter() - t0) * 1000
-        return ModelResponse(text="", latency_ms=latency, model=self.model, error=last_err or "unknown")
+        return ModelResponse(
+            text="", latency_ms=latency, model=self.model, error=last_err or "unknown"
+        )
 
     async def aclose(self) -> None:
         await self._client.aclose()

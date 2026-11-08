@@ -116,11 +116,14 @@ async def run_evaluation(
 ) -> RunResult:
     price_table = load_price_table(price_table_path)
     providers: dict[str, Provider] = {m: create_provider(m) for m in models}
-    judge: Provider | None = create_provider(judge_model) if judge_model else None
-    # For mock demos, reuse mock as judge when requested as mock
-    if judge_model is None and any(m.lower().startswith("mock") for m in models):
-        # only create judge if any suite actually needs it — keep None by default
-        pass
+    needs_judge = any(
+        str(case.scoring or suite.default_scoring) == "llm_judge"
+        for suite in suites
+        for case in suite.cases
+    )
+    judge: Provider | None = None
+    if needs_judge:
+        judge = create_provider(judge_model or "mock")
 
     limiter = RateLimiter(rate_limit)
     sem = asyncio.Semaphore(concurrency)
@@ -134,10 +137,7 @@ async def run_evaluation(
         for case in suite.cases:
             scoring = str(case.scoring or suite.default_scoring)
             for model in models:
-                # Lazy judge: create mock judge on demand for llm_judge + mock runs
-                case_judge = judge
-                if scoring == "llm_judge" and case_judge is None:
-                    case_judge = create_provider(judge_model or "mock")
+                case_judge = judge if scoring == "llm_judge" else None
                 tasks.append(
                     asyncio.create_task(
                         wrapped(

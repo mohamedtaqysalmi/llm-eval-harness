@@ -27,10 +27,7 @@ def score_exact(output: str, expected: Any, params: dict[str, Any]) -> ScoreResu
     a = output.strip() if strip else output
     b = _as_text(expected)
     b = b.strip() if strip else b
-    if ignore_case:
-        passed = a.lower() == b.lower()
-    else:
-        passed = a == b
+    passed = a.lower() == b.lower() if ignore_case else a == b
     return ScoreResult(passed=passed, score=1.0 if passed else 0.0, detail="exact match")
 
 
@@ -61,7 +58,9 @@ def score_json_schema(output: str, expected: Any, params: dict[str, Any]) -> Sco
     errors = sorted(validator.iter_errors(data), key=lambda e: list(e.path))
     if errors:
         msg = "; ".join(e.message for e in errors[:3])
-        return ScoreResult(passed=False, score=0.0, detail=msg, raw={"errors": [e.message for e in errors]})
+        return ScoreResult(
+            passed=False, score=0.0, detail=msg, raw={"errors": [e.message for e in errors]}
+        )
     return ScoreResult(passed=True, score=1.0, detail="valid against schema")
 
 
@@ -195,7 +194,9 @@ async def score_case(
         return score_similarity(output, expected, params)
     if key == ScoringMethod.LLM_JUDGE:
         if judge is None:
-            return ScoreResult(passed=False, score=0.0, detail="llm_judge requires a judge provider")
+            return ScoreResult(
+                passed=False, score=0.0, detail="llm_judge requires a judge provider"
+            )
         return await score_llm_judge(output, expected, params, judge)
     return ScoreResult(passed=False, score=0.0, detail=f"unknown scoring method: {method}")
 

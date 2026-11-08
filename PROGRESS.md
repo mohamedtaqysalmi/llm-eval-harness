@@ -1,21 +1,24 @@
 # Progress — llm-eval-harness (P4)
 
 ## Done
-- Cloned private repo `mohamedtaqysalmi/llm-eval-harness`
-- MIT LICENSE (Mohamed-Taqy Salmi)
-- `.gitignore`, `.env.example`
-- Project skeleton: `pyproject.toml`, package layout, Makefile, Docker stubs, PROGRESS.md
+- Cloned private repo; MIT LICENSE (Mohamed-Taqy Salmi)
+- Skeleton: package layout, Docker, Makefile, `.env.example`, `.gitignore`
+- Core: suite loader (YAML/JSON/JSONL), mock + OpenAI-compatible providers, scorers, async runner, cost table, SQLite storage
+- Reports: Rich terminal table, self-contained HTML (sortable + charts + drill-down), JSON export, run compare / regressions
+- Sample suites: general QA, JSON extraction, Darija/FR/EN translation — **70 cases**
+- Tests: unit + mock e2e (**17 passed** on Python 3.12)
+- GitHub Actions CI: ruff + pytest + mock CLI smoke
+- README (12 sections) with metrics from real mock run `6bfda768435d` on 2026-11-08 (70/70, 100%)
+- Verified: `llm-eval run suites/ --models mock` produces HTML + JSON
 
 ## In progress
-- Core: suite loader, providers (mock + OpenAI-compat), scorers, async runner, SQLite storage, reports
+- None (P4 deliverable complete)
 
 ## Next
-- Sample suites (general QA, JSON extraction, translation sanity) — 50+ cases
-- Tests + mock end-to-end
-- GitHub Actions CI (ruff + mock e2e)
-- Full README (12 sections) with metrics from a real mock run
-- Polish: HTML report charts, run comparison / regressions
+- Optional: PyPI publish, more suites, live OpenAI/Ollama comparison runs
+- Optional: keep GitHub topics/description in sync
 
 ## Known issues
-- Repo was empty on clone; no prior commits
-- README metrics intentionally absent until a real `llm-eval run` completes
+- Host default `python` may be 3.15; use `py -3.12` (PyYAML needs wheels/MSVC on 3.15)
+- LLM-as-judge is biased by design — see README warning
+- Cost figures are estimates from `config/prices.yaml`, not billing truth

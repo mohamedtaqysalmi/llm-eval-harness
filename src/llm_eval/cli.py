@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 from pathlib import Path
-from typing import Optional
 
 import typer
 from dotenv import load_dotenv
@@ -34,7 +33,7 @@ app = typer.Typer(
 console = Console()
 
 
-def _db_path(explicit: Optional[str] = None) -> Path:
+def _db_path(explicit: str | None = None) -> Path:
     return Path(explicit or os.getenv("LLM_EVAL_DB_PATH", "results/evals.db"))
 
 
@@ -60,16 +59,12 @@ def run(
     ),
     out: str = typer.Option("reports/latest", "--out", "-o", help="Output directory"),
     concurrency: int = typer.Option(8, "--concurrency", "-c", help="Max concurrent requests"),
-    rate_limit: float = typer.Option(
-        0.0, "--rate-limit", help="Max requests/sec (0 = unlimited)"
-    ),
-    judge_model: Optional[str] = typer.Option(
+    rate_limit: float = typer.Option(0.0, "--rate-limit", help="Max requests/sec (0 = unlimited)"),
+    judge_model: str | None = typer.Option(
         None, "--judge-model", help="Model for llm_judge scoring"
     ),
-    db: Optional[str] = typer.Option(None, "--db", help="SQLite DB path"),
-    price_table: Optional[str] = typer.Option(
-        None, "--prices", help="Path to prices YAML"
-    ),
+    db: str | None = typer.Option(None, "--db", help="SQLite DB path"),
+    price_table: str | None = typer.Option(None, "--prices", help="Path to prices YAML"),
     temperature: float = typer.Option(0.0, "--temperature"),
     max_tokens: int = typer.Option(512, "--max-tokens"),
 ) -> None:
@@ -116,7 +111,7 @@ def run(
 def compare(
     baseline: str = typer.Argument(..., help="Baseline run id OR results.json path"),
     candidate: str = typer.Argument(..., help="Candidate run id OR results.json path"),
-    db: Optional[str] = typer.Option(None, "--db", help="SQLite DB path"),
+    db: str | None = typer.Option(None, "--db", help="SQLite DB path"),
 ) -> None:
     """Compare two runs and show regressions / improvements."""
     from llm_eval.models import RunResult
@@ -140,7 +135,7 @@ def compare(
 
 @app.command("list-runs")
 def list_runs(
-    db: Optional[str] = typer.Option(None, "--db", help="SQLite DB path"),
+    db: str | None = typer.Option(None, "--db", help="SQLite DB path"),
     limit: int = typer.Option(20, "--limit", "-n"),
 ) -> None:
     """List recent runs stored in SQLite."""

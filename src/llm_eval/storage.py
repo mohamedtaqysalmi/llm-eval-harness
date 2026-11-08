@@ -8,7 +8,6 @@ from pathlib import Path
 
 from llm_eval.models import CaseResult, RunResult
 
-
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS runs (
     run_id TEXT PRIMARY KEY,

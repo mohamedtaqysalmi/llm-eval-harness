@@ -45,7 +45,7 @@ class MockProvider:
         completion_tokens = max(1, len(text.split()))
         latency = (time.perf_counter() - t0) * 1000 + (digest % 17)
         return ModelResponse(
-            text=text[:max_tokens * 8],
+            text=text[: max_tokens * 8],
             latency_ms=latency,
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
@@ -134,7 +134,7 @@ class MockProvider:
             "speed of light": "299792458",
             "boiling point of water at sea level": "100",
             "freezing point of water": "0",
-            "planet closest to the sun": "Mercury",
+            "closest to the sun": "Mercury",
         }
         for key, val in qa_map.items():
             if key in lower:
