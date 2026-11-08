@@ -1,0 +1,15 @@
+services:
+  llm-eval:
+    build: .
+    image: llm-eval-harness:local
+    volumes:
+      - ./suites:/app/suites:ro
+      - ./config:/app/config:ro
+      - ./results:/app/results
+      - ./reports:/app/reports
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      - LLM_EVAL_DB_PATH=/app/results/evals.db
+    command: ["run", "suites/", "--models", "mock", "--out", "reports/mock-run"]

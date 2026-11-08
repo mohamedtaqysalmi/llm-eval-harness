@@ -1,0 +1,22 @@
+# USD per 1M tokens. Override or extend as needed.
+# Used only for estimated cost reporting — not billing truth.
+
+models:
+  mock:
+    input: 0.0
+    output: 0.0
+  gpt-4o-mini:
+    input: 0.15
+    output: 0.60
+  gpt-4o:
+    input: 2.50
+    output: 10.00
+  gpt-4.1-mini:
+    input: 0.40
+    output: 1.60
+  ollama/llama3.2:
+    input: 0.0
+    output: 0.0
+  default:
+    input: 0.50
+    output: 1.50
