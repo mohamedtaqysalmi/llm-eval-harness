@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>llm-eval-harness — compare models on your own prompt suites</title>
+    <meta
+      name="description"
+      content="Tiny honest LLM evaluation CLI by Mohamed-Taqy Salmi. Run YAML suites against mock or OpenAI-compatible models, score clearly, export HTML and JSON. Offline mock demo included."
+    />
+    <meta name="author" content="Mohamed-Taqy Salmi" />
+    <meta
+      name="keywords"
+      content="LLM evaluation, benchmark, OpenAI compatible, Ollama, Typer, mock provider, HTML report, Darija"
+    />
+    <meta name="theme-color" content="#0c1220" />
+    <meta property="og:title" content="llm-eval-harness" />
+    <meta
+      property="og:description"
+      content="Compare LLMs on your own suites. Real mock run proof: 70/70 on 2026-11-08."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://mohamedtaqysalmi.github.io/llm-eval-harness/"
+    />
+    <link rel="canonical" href="https://mohamedtaqysalmi.github.io/llm-eval-harness/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./site.css" />
+  </head>
+  <body>
+    <a class="skip" href="#proof">Skip to proof</a>
+    <header class="top">
+      <div class="brand-lock">
+        <span class="mark" aria-hidden="true"></span>
+        <span class="brand">llm-eval-harness</span>
+      </div>
+      <nav aria-label="Primary">
+        <a href="#proof">Proof</a>
+        <a href="#how">How it works</a>
+        <a href="#start">Quick start</a>
+        <a
+          class="nav-repo"
+          href="https://github.com/mohamedtaqysalmi/llm-eval-harness"
+          >GitHub</a
+        >
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">CLI · Python 3.12 · OpenAI-compatible</p>
+        <h1 id="hero-title"><span class="brand-hero">llm-eval-harness</span></h1>
+        <p class="lede">
+          Compare models on <em>your</em> prompts. Clear scorers. Honest
+          numbers. Offline mock so demos never invent scores.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="#proof">See the verified mock report</a>
+          <a
+            class="btn ghost"
+            href="https://github.com/mohamedtaqysalmi/llm-eval-harness"
+            >View repository</a
+          >
+        </div>
+        <p class="hero-note">
+          Built by <strong>Mohamed-Taqy Salmi</strong> · MIT · EN / FR / Darija
+          suites
+        </p>
+      </section>
+
+      <section id="proof" class="proof" aria-labelledby="proof-title">
+        <div class="proof-copy">
+          <h2 id="proof-title">Verified mock proof</h2>
+          <p>
+            Real local run on <strong>2026-11-08</strong> — not invented
+            benchmarks:
+          </p>
+          <pre class="code"><code>py -3.12 -m llm_eval run suites/ --models mock \
+  --out reports/mock-run --judge-model mock</code></pre>
+          <ul class="stats">
+            <li><strong>70 / 70</strong> cases passed</li>
+            <li>Run id <code>6bfda768435d</code></li>
+            <li>3 suites · mean score 1.000</li>
+            <li>Estimated cost $0 (mock)</li>
+          </ul>
+          <p>
+            <a class="btn primary" href="./sample-report/report.html"
+              >Open the HTML report</a
+            >
+          </p>
+        </div>
+        <div class="proof-card" aria-label="Run summary">
+          <h3>What got measured</h3>
+          <ol>
+            <li>general QA</li>
+            <li>JSON extraction</li>
+            <li>Darija / French / English translation sanity</li>
+          </ol>
+          <p class="muted">
+            Scorers include exact, regex, JSON Schema, contains, fuzzy
+            similarity, and optional LLM-as-judge (with bias warning in the
+            README).
+          </p>
+        </div>
+      </section>
+
+      <section id="how" class="how" aria-labelledby="how-title">
+        <h2 id="how-title">How it works</h2>
+        <ol class="steps">
+          <li>
+            <strong>Write suites</strong>
+            <span>YAML / JSON / JSONL cases with expected + scoring method.</span>
+          </li>
+          <li>
+            <strong>Run models</strong>
+            <span>Mock, OpenAI, Groq, Ollama — any OpenAI-compatible API.</span>
+          </li>
+          <li>
+            <strong>Score honestly</strong>
+            <span>Deterministic scorers first; judge models optional.</span>
+          </li>
+          <li>
+            <strong>Compare</strong>
+            <span>Terminal table + HTML + JSON; diff two runs for regressions.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section id="start" class="start" aria-labelledby="start-title">
+        <h2 id="start-title">Quick start</h2>
+        <pre class="code"><code>py -3.12 -m pip install -e ".[dev]"
+llm-eval run suites/ --models mock --out reports/mock-run --judge-model mock
+# open reports/mock-run/report.html</code></pre>
+        <p class="links">
+          <a href="./sample-report/report.html">Sample report</a>
+          ·
+          <a href="https://github.com/mohamedtaqysalmi/llm-eval-harness#readme"
+            >Full README</a
+          >
+        </p>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>
+        MIT · Built by
+        <a href="https://github.com/mohamedtaqysalmi">Mohamed-Taqy Salmi</a>
+      </p>
+      <p class="muted">
+        Mock proof numbers are from a real command dated 2026-11-08.
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,8 +1,10 @@
 # llm-eval-harness
 
-Tiny, honest framework to compare LLM models on **your own** prompt suites — not someone else's leaderboard.
+**Compare LLMs on your own prompt suites — clear scorers, honest numbers, offline mock.**
 
-Installable CLI: `llm-eval`. Offline-friendly via a deterministic `mock` provider.
+[Live demo page](https://mohamedtaqysalmi.github.io/llm-eval-harness/) · [Sample HTML report](https://mohamedtaqysalmi.github.io/llm-eval-harness/sample-report/report.html) · MIT · Built by Mohamed-Taqy Salmi
+
+Installable CLI: `llm-eval`. Offline-friendly via a deterministic `mock` provider. Verified mock proof: **70/70** on 2026-11-08 (`6bfda768435d`).
 
 ## 1. Why this exists
 
